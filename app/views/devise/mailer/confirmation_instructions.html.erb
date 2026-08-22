@@ -1,0 +1,8 @@
+<!-- app/views/devise/mailer/confirmation_instructions.html.erb -->
+<p>Welcome! Confirm your account by clicking the link below:</p>
+
+<p>
+  <a href="<%= "#{ENV.fetch("FRONTEND_ORIGIN", "https://localhost:5173")}/confirm?token=#{@token}" %>">
+    Confirm my account
+  </a>
+</p>

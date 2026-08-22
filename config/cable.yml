@@ -1,0 +1,10 @@
+development:
+  adapter: async # Uses in-process pub/sub adapter for local development (no external service needed)
+
+test:
+  adapter: test  # Disables broadcasting; suitable for isolated tests
+
+production:
+  adapter: redis # Uses Redis for pub/sub in production
+  url: <%= ENV.fetch("REDIS_URL") { "redis://localhost:6379/1" } %> # Falls back to local Redis if ENV not set
+  channel_prefix: amigos_unite_api_production # Prevents namespace conflicts on shared Redis instances

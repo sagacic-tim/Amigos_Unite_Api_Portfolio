@@ -1,0 +1,17 @@
+# Procfile.dev
+#
+# Local development only — NOT used inside Docker.
+#
+# The production .env file sets PGHOST=db (Docker Compose service name) and
+# PGDATABASE=amigos_unite_api_production.  Foreman loads .env automatically,
+# so we override those vars inline here to point at the local Postgres instance.
+# NOTE: Foreman does not support shell line-continuation (\); each entry must
+# be a single line.
+
+redis:  redis-server --port 6379 --tcp-backlog 128
+
+# Rails API — SSL on 3001 (PUMA_DEV_SSL=true uses localhost.pem / localhost-key.pem in the app root)
+web:    env PORT=3001 RAILS_ENV=development PUMA_DEV_SSL=true PGHOST=localhost PGDATABASE=amigos_unite_api_development REDIS_URL=redis://127.0.0.1:6379/0 bundle exec puma -C config/puma.rb
+
+# Sidekiq worker
+worker: env RAILS_ENV=development PGHOST=localhost PGDATABASE=amigos_unite_api_development REDIS_URL=redis://127.0.0.1:6379/0 bundle exec sidekiq -C config/sidekiq.yml

@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# --- Ensure we are NOT using macOS system Ruby (2.6.x) ---
+if command -v rbenv >/dev/null 2>&1; then
+  export RBENV_ROOT="${RBENV_ROOT:-$HOME/.rbenv}"
+  export PATH="$RBENV_ROOT/bin:$PATH"
+  eval "$(rbenv init - bash)"
+else
+  echo "ERROR: rbenv not found on PATH. Install/configure rbenv so Ruby 3.2.2 can be used." >&2
+  exit 1
+fi
+
+# Optional: sanity check .ruby-version (do not mutate shell version)
+if [[ -f ".ruby-version" ]]; then
+  expected="$(tr -d '[:space:]' < .ruby-version)"
+  actual="$(rbenv version-name)"
+  if [[ -n "$expected" && "$actual" != "$expected" ]]; then
+    echo "ERROR: rbenv version mismatch. expected=$expected actual=$actual" >&2
+    echo "Run: rbenv install $expected (if needed) && rbenv local $expected" >&2
+    exit 1
+  fi
+fi
+
+# --- Load repo defaults (non-secrets) ---
+if [[ -f ".env" ]]; then
+  set -a
+  # shellcheck disable=SC1091
+  source ".env"
+  set +a
+fi
+
+# --- Load dev secrets (not in repo) ---
+SECRETS_FILE="${SECRETS_FILE:-$HOME/.secrets/amigos_unite_api.env}"
+if [[ -f "$SECRETS_FILE" ]]; then
+  set -a
+  # shellcheck disable=SC1090
+  source "$SECRETS_FILE"
+  set +a
+fi
+
+# --- Diagnostics ---
+echo "[bin/dev] ruby=$(rbenv exec ruby -v)"
+echo "[bin/dev] bundle=$(rbenv exec bundle -v)"
+
+# --- Prefer bundler version from Gemfile.lock if present ---
+BUNDLER_VERSION=""
+if [[ -f "Gemfile.lock" ]]; then
+  BUNDLER_VERSION="$(
+    rbenv exec ruby -e '
+      lock="Gemfile.lock"
+      v=nil
+      File.read(lock).each_line.each_cons(2) do |a,b|
+        if a.strip=="BUNDLED WITH"
+          v=b.strip
+          break
+        end
+      end
+      puts(v.to_s)
+    ' 2>/dev/null || true
+  )"
+fi
+
+if [[ -n "$BUNDLER_VERSION" ]]; then
+  exec rbenv exec bundle "_${BUNDLER_VERSION}_" exec foreman start -f Procfile.dev
+else
+  exec rbenv exec bundle exec foreman start -f Procfile.dev
+fi

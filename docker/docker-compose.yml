@@ -1,0 +1,61 @@
+# docker-compose.yml
+# Production compose file for amigos_unite_api on the VPS.
+# Lives at /opt/amigos_unite_api/docker-compose.yml
+# Companion: /opt/amigos_unite_app/docker-compose.yml runs the frontend.
+#
+# Persistent data directories (created manually on VPS before first run):
+#   /opt/amigos_unite_api/data/postgres  → PostgreSQL data
+#   /opt/amigos_unite_api/data/redis     → Redis AOF persistence
+#   /opt/amigos_unite_api/data/storage   → Active Storage uploads
+#
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "${PGPASSWORD}"
+      POSTGRES_DB: amigos_unite_api_production
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d amigos_unite_api_production"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - ./data/redis:/data
+    restart: unless-stopped
+
+  api:
+    image: ghcr.io/sagacic-tim/amigos_unite_api:main
+    env_file:
+      - .env
+    volumes:
+      - ./data/storage:/app/storage
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    ports:
+      - "127.0.0.1:3001:3001"
+    restart: unless-stopped
+
+  sidekiq:
+    image: ghcr.io/sagacic-tim/amigos_unite_api:main
+    env_file:
+      - .env
+    volumes:
+      - ./data/storage:/app/storage
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    command: ["bundle", "exec", "sidekiq"]
+    restart: unless-stopped

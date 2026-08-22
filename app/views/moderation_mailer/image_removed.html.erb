@@ -1,0 +1,18 @@
+<!-- app/views/moderation_mailer/image_removed.html.erb -->
+<h1 style="margin:0 0 12px;">Your image was removed</h1>
+
+<p>Hi <%= @amigo.first_name %>,</p>
+
+<p>
+  Your <strong><%= @attachment_name %></strong> was automatically removed because
+  our content moderation system detected that it may violate our community guidelines.
+</p>
+
+<p>
+  If you believe this was a mistake, please upload a different image or
+  contact us at <a href="mailto:support@amigosunite.org">support@amigosunite.org</a>.
+</p>
+
+<p style="margin-top:24px; color:#666; font-size:13px;">
+  This is an automated message from Amigos Unite.
+</p>

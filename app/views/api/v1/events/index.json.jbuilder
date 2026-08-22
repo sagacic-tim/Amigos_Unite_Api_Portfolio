@@ -1,0 +1,4 @@
+# Example of what index.json.jbuilder might look like
+json.array! @events do |event|
+  json.partial! 'api/v1/events/event', event: event
+end

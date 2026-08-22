@@ -1,0 +1,8 @@
+<!-- app/views/contact_mailer/contact_message.html.erb -->
+<h1 style="margin:0 0 12px;">New contact submission</h1>
+
+<p><strong>Name:</strong> <%= @first_name %> <%= @last_name %></p>
+<p><strong>Email:</strong> <%= @email %></p>
+
+<p style="margin:12px 0 4px;"><strong>Message:</strong></p>
+<p style="white-space: pre-wrap;"><%= h(@body_text) %></p>

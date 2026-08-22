@@ -1,0 +1,37 @@
+
+# Git
+.git
+.gitignore
+
+# Bundler / vendor
+.bundle
+vendor/bundle
+
+# Logs / temp
+log/*
+tmp/*
+tmp/pids/*
+tmp/cache/*
+tmp/sockets/*
+
+# Storage (ActiveStorage local files – in prod you should use S3/etc.)
+storage/*
+
+# Node 
+node_modules
+
+# Coverage / artifacts
+coverage
+doc
+spec/examples.txt
+
+# Local env and secrets
+.env
+.env.*
+config/master.key
+config/credentials.yml.enc
+
+# Docker files themselves (they are in the root, not needed inside image)
+Dockerfile
+docker-compose.yml
+

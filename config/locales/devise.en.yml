@@ -1,0 +1,71 @@
+en:
+  devise:
+    confirmations:
+      confirmed: "All set! Your email's been confirmed."
+      send_instructions: "Check your inbox for a confirmation email. It should arrive shortly!"
+      send_paranoid_instructions: "If we found your email, a confirmation message is on the way."
+
+    failure:
+      already_authenticated: "You're already logged in."
+      inactive: "Hang tight—your account still needs activation."
+      invalid: "Hmm... that %{authentication_keys} or password doesn’t look right."
+      locked: "Too many tries—your account is locked for now."
+      last_attempt: "Careful! One more try before your account locks."
+      not_found_in_database: "That %{authentication_keys} or password didn’t match anything we have."
+      timeout: "You’ve been away too long. Please sign in again."
+      unauthenticated: "Please log in or sign up to keep going."
+      unconfirmed: "You’ll need to confirm your email before accessing this part."
+
+    mailer:
+      confirmation_instructions:
+        subject: "Confirm your email"
+      reset_password_instructions:
+        subject: "Reset your password"
+      unlock_instructions:
+        subject: "Unlock your account"
+      email_changed:
+        subject: "Email changed"
+      password_change:
+        subject: "Password updated"
+
+    omniauth_callbacks:
+      failure: "We couldn’t log you in from %{kind}. Reason: \"%{reason}\"."
+      success: "You're all set! Signed in with %{kind}."
+
+    passwords:
+      no_token: "Oops! You can’t reset your password without the special link in your email."
+      send_instructions: "If the email matches, you’ll get a link to reset your password shortly."
+      send_paranoid_instructions: "If the email is in our system, a reset link is headed your way."
+      updated: "Nice! Your password’s been changed and you’re logged in."
+      updated_not_active: "Your password’s been changed. You can log in once your account is active."
+
+    registrations:
+      destroyed: "Goodbye for now! Your account’s been deleted. Come back anytime!"
+      signed_up: "Welcome aboard! You're signed up and ready to go."
+      signed_up_but_inactive: "Signed up! We just need to activate your account first."
+      signed_up_but_locked: "You signed up, but your account is currently locked."
+      signed_up_but_unconfirmed: "Check your email for a confirmation link to get started."
+      update_needs_confirmation: "Update successful! Just confirm your new email to finish up."
+      updated: "All changes saved. You're good to go!"
+      updated_but_not_signed_in: "Changes saved! Since your password changed, please sign in again."
+
+    sessions:
+      signed_in: "Welcome back!"
+      signed_out: "You’ve been logged out."
+      already_signed_out: "You were already logged out."
+
+    unlocks:
+      send_instructions: "You’ll get an email shortly with instructions to unlock your account."
+      send_paranoid_instructions: "If your account exists, we’ll send unlock instructions your way."
+      unlocked: "You’re back in! Your account is unlocked."
+
+  errors:
+    messages:
+      already_confirmed: "That email’s already confirmed. Try logging in."
+      confirmation_period_expired: "The link expired after %{period}. Request a new one to continue."
+      expired: "That link expired. Request a new one to try again."
+      not_found: "We couldn’t find what you’re looking for."
+      not_locked: "This account isn’t locked."
+      not_saved:
+        one: "1 error kept this %{resource} from saving:"
+        other: "%{count} errors kept this %{resource} from saving:"

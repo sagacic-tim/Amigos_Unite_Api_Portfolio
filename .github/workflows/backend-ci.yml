@@ -1,0 +1,104 @@
+# .github/workflows/backend-ci.yml
+
+name: Backend CI
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "app/**"
+      - "config/**"
+      - "db/**"
+      - "spec/**"
+      - "Gemfile"
+      - "Gemfile.lock"
+      - ".github/workflows/backend-ci.yml"
+      - ".github/workflows/ghcr.yml"
+
+jobs:
+  test:
+    name: backend-ci / test
+    runs-on: ubuntu-24.04
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: amigos_unite_api_test
+        ports:
+          - "5432:5432"
+        options: >-
+          --health-cmd="pg_isready -U postgres -d amigos_unite_api_test"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      RAILS_ENV: test
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/amigos_unite_api_test
+      RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY_TEST }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Debug - show commit and lockfile identity
+        run: |
+          set -euxo pipefail
+          git rev-parse HEAD
+          echo "PWD=$(pwd)"
+          echo "---- find Gemfile/Gemfile.lock ----"
+          find . -maxdepth 4 -name Gemfile -o -name Gemfile.lock -print
+          echo "---- Gemfile.lock BUNDLED WITH ----"
+          sed -n '/^BUNDLED WITH/,$p' Gemfile.lock
+          echo "---- Gemfile.lock PLATFORMS ----"
+          sed -n '/^PLATFORMS/,/^DEPENDENCIES/p' Gemfile.lock
+
+      - name: Install OS deps
+        run: |
+          set -euxo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            libpq-dev postgresql-client pkg-config \
+            libvips libvips-dev libvips-tools
+          sudo ldconfig
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.2.2"
+          bundler: "2.5.17"
+          bundler-cache: true
+          cache-version: 1
+
+      - name: Materialize test credentials key (validate shape)
+        run: |
+          set -euo pipefail
+          KEY="$(printf '%s' "${RAILS_MASTER_KEY:-}" | tr -d '\r\n')"
+          if [[ ! "$KEY" =~ ^[0-9A-Fa-f]{32}$ ]]; then
+            echo "ERROR: RAILS_MASTER_KEY_TEST must be exactly 32 hex characters. Got length=${#KEY}." >&2
+            exit 1
+          fi
+          mkdir -p config/credentials
+          printf '%s' "$KEY" > config/credentials/test.key
+          chmod 0400 config/credentials/test.key
+
+      - name: Wait for Postgres
+        run: |
+          set -euxo pipefail
+          until pg_isready --host=localhost --port=5432 --username=postgres --dbname=amigos_unite_api_test; do
+            echo "Waiting for Postgres..."
+            sleep 1
+          done
+
+      - name: Prepare database (CI-safe - no seeds)
+        run: |
+          set -euxo pipefail
+          bin/rails db:drop db:create db:schema:load
+
+      - name: Run RSpec suite
+        run: |
+          set -euxo pipefail
+          bundle exec rspec

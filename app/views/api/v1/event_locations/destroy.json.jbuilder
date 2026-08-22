@@ -1,0 +1,1 @@
+json.message 'Event location successfully deleted'
