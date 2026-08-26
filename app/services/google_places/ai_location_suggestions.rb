@@ -24,7 +24,13 @@ module GooglePlaces
     MAX_VENUE_TYPES    = 3        # user may select at most 3 categories
 
     # -------------------------------------------------------------------------
-    # 20 curated venue categories.
+    # PORTFOLIO NOTE: the real list curates 20 venue categories across six
+    # groups (Food & Drink, Work & Study, Community & Culture, Outdoor, Events
+    # & Nightlife, plus a couple of niche additions) — each hand-tuned with a
+    # Google Places `type` and a `keyword` phrase that keeps results on-category
+    # without over-narrowing them. Shown here: one representative category per
+    # group, so the shape is visible without publishing the complete taxonomy.
+    #
     # type:    Google Places type passed to nearbysearch (nil = keyword-only)
     # keyword: focused search term that keeps results on-category
     # outdoor: true → excluded for evening events (before 06:00 or after 18:00)
@@ -32,29 +38,15 @@ module GooglePlaces
     VENUE_CATEGORIES = {
       # ── Food & Drink ────────────────────────────────────────────────────────
       "coffee_shop"      => { type: "cafe",                    keyword: "independent coffee shop cafe",                    outdoor: false },
-      "juice_bar"        => { type: "cafe",                    keyword: "juice bar smoothie healthy organic cafe",          outdoor: false },
-      "restaurant"       => { type: "restaurant",              keyword: "restaurant dining",                                outdoor: false },
-      "bar_pub"          => { type: "bar",                     keyword: "bar pub tavern lounge",                            outdoor: false },
-      "bookstore_cafe"   => { type: "book_store",              keyword: "bookstore cafe reading lounge",                    outdoor: false },
-      "brewery"          => { type: "bar",                     keyword: "craft brewery taproom microbrewery",               outdoor: false },
       # ── Work & Study ────────────────────────────────────────────────────────
       "coworking"        => { type: nil,                       keyword: "coworking space day office",                       outdoor: false },
-      "library"          => { type: "library",                 keyword: "library",                                          outdoor: false },
-      "university"       => { type: "university",              keyword: "university campus",                                outdoor: false },
-      "hotel_meeting"    => { type: "lodging",                 keyword: "hotel meeting room conference",                    outdoor: false },
       # ── Community & Culture ─────────────────────────────────────────────────
-      "community_center" => { type: "local_government_office", keyword: "community center civic hall",                      outdoor: false },
       "museum_gallery"   => { type: "museum",                  keyword: "museum art gallery",                               outdoor: false },
-      "theater"          => { type: nil,                       keyword: "theater auditorium concert hall performance",      outdoor: false },
-      "historical_site"  => { type: "tourist_attraction",      keyword: "historical site landmark",                         outdoor: true  },
       # ── Outdoor ─────────────────────────────────────────────────────────────
       "park_garden"      => { type: "park",                    keyword: "park garden outdoor",                              outdoor: true  },
-      "rooftop"          => { type: nil,                       keyword: "rooftop bar terrace outdoor venue",                outdoor: true  },
       # ── Events & Nightlife ──────────────────────────────────────────────────
-      "event_venue"      => { type: nil,                       keyword: "banquet hall event venue private hire",            outdoor: false },
       "club_lounge"      => { type: "night_club",              keyword: "club lounge evening entertainment",                outdoor: false },
-      "religious_venue"  => { type: "church",                  keyword: "church temple mosque synagogue parish",            outdoor: false },
-      "tea_house"        => { type: "cafe",                    keyword: "tea house tea room lounge",                        outdoor: false },
+      # ... 15 more categories omitted from this portfolio snapshot ...
     }.freeze
 
     # -------------------------------------------------------------------------

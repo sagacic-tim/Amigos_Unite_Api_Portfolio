@@ -7,11 +7,13 @@
 
     Production-Grade Rails 7 Backend for Distributed Event Coordination
 
-    This is a sanitized, public snapshot of the private production repository
-    for the Amigos Unite API, published for code review by prospective
-    employers. It is squashed to a single commit (no production git history)
-    and has all secrets, credentials, and VPS access details removed or
-    replaced with placeholders — everything else reflects real, running code.
+    This is a curated snapshot of the private production repository for the
+    Amigos Unite API, published for code review by prospective employers —
+    not an open-source release or a deployable clone. It is squashed to a
+    single commit (no production git history), has all secrets, credentials,
+    and VPS access details removed, and omits the specific pieces that would
+    let someone stand up a working copy of the product (see "What's Omitted"
+    below). Everything that remains is real, unmodified code.
 
     Live API: https://api.amigosunite.org
     Companion frontend (portfolio snapshot): https://github.com/sagacic-tim/Amigos_Unite_App_Portfolio
@@ -78,7 +80,8 @@ The backend follows a layered architecture:
 
 ** Local Development
 
-    Without Docker
+    This snapshot won't boot as-is (see "What's Omitted" below — there's no
+    schema/migrations to create a database from). For a real checkout:
 
         → bundle install
         → bin/rails db:create
@@ -97,14 +100,11 @@ The backend follows a layered architecture:
 
 ** Testing
 
-    → bundle exec rspec
-
-    Test suite validates:
-
-    • Authentication flows
-    • Authorization logic
-    • Event lifecycle
-    • Location integration
+    The full suite covers authentication flows, authorization logic, event
+    lifecycle, and location integration end to end. This snapshot keeps one
+    showcase spec — spec/policies/event_policy_spec.rb — exercising the
+    role-based authorization policy against every role and permission
+    (see "What's Omitted" for why the rest isn't included).
 
 ** CI/CD & Deployment
 
@@ -120,6 +120,26 @@ The backend follows a layered architecture:
 
         docker pull ghcr.io/sagacic-tim/amigos_unite_api:main
         docker compose up -d
+
+** What's Omitted From This Snapshot
+
+    Amigos Unite is a live commercial product, not just a portfolio piece —
+    so beyond the usual secrets/credentials, this snapshot deliberately
+    excludes the specific pieces that would let someone reconstruct a working
+    copy rather than just read good code:
+
+    • db/schema.rb and db/migrate/* — the complete data model blueprint
+    • The full config/routes.rb — replaced with a representative excerpt
+    • The full spec/ suite — one showcase spec is kept (see Testing above)
+    • The tuned Claude system prompt and the complete curated venue-category
+      taxonomy in app/services/google_places/ — shown abbreviated, with the
+      real wording/full list omitted (see the comments in those files)
+    • The working VPS deploy script in .github/workflows/ghcr.yml — replaced
+      with a placeholder step
+
+    Everything else — controllers, models, policies, jobs, serializers, the
+    rest of the Google Places integration, CI test/build automation — is
+    real, complete, and unmodified.
 
 ** Engineering Focus
 

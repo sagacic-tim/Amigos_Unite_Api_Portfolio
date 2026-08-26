@@ -213,6 +213,12 @@ module GooglePlaces
     end
 
     # ── System prompt ─────────────────────────────────────────────────────────
+    #
+    # PORTFOLIO NOTE: the full tuned prompt (exact wording, worked examples,
+    # and the complete exclusion/ranking rules) is omitted here — it's the
+    # product of a lot of iteration against real venue searches, so this
+    # snapshot only shows its shape: the same five sections, each abbreviated
+    # to a single illustrative line instead of the tuned instructions.
 
     def build_system_prompt
       criteria_text = @criteria.each_with_index.map { |c, i| "#{i + 1}. #{c}" }.join("\n")
@@ -221,73 +227,33 @@ module GooglePlaces
 
       <<~SYSTEM
         You are a venue scout for social events. Your job is to find and RANK venues
-        against the organizer's criteria. You MUST always return a JSON result —
-        never refuse, never explain why you can't return results.
+        against the organizer's criteria. You MUST always return a JSON result.
 
         Search area : #{@city}, #{@state_province}
         Coordinates : #{@lat}, #{@lng}
         Radius      : 5 miles (8 047 metres)
-        Total criteria: #{criteria_count}
 
         Organizer's criteria (numbered for scoring):
         #{criteria_text}
 
         ── SEARCH PROCESS ──────────────────────────────────────────────────────────
-        1. Translate each criterion into search terms. Examples:
-             "organic / healthy"    → "organic cafe", "health food cafe", "juice bar"
-             "quiet atmosphere"     → "quiet cafe", "independent coffee shop", "study cafe"
-             "has internet / wifi"  → independent cafes universally have WiFi; use "cafe wifi"
-             "cool vibes / R&B"     → "jazz blues bar", "live music lounge"
-             "has coffee"           → "coffee shop", "cafe"
-             "indoor seating"       → avoid parks, rooftop-only venues, outdoor markets
-        2. Run 3–5 focused searches using venue_type when helpful.
-        3. If, after your focused searches, you have fewer than #{MIN_ELIGIBLE_VENUES} total
-           eligible venues, run at least one more search with broader, more general terms —
-           drop niche descriptors (e.g. "jazz blues cafe" → "cafe", "artsy cocktail lounge" →
-           "bar" or "lounge") and omit venue_type so results aren't restricted to one category.
-           Prefer ending with more venues at lower criteria-match counts over returning only
-           1-2 venues.
+        [Omitted: guidance for translating vague criteria into search_venues queries,
+        with worked examples, and a broaden-the-search fallback rule.]
 
         ── SCORING EACH VENUE ──────────────────────────────────────────────────────
-        For each venue, count how many criteria it LIKELY satisfies using inference:
-        - Google Places does not return WiFi, noise levels, or sourcing data.
-          Use venue name and type to infer: a cafe named "Organic Kitchen" likely satisfies
-          "organic"; an independent coffee shop almost certainly satisfies "has WiFi";
-          a tea house or library-cafe likely satisfies "quiet atmosphere".
-        - Assign each venue a criteria_matched count (0–#{criteria_count}).
+        [Omitted: rules for inferring criteria matches from name/type/rating alone,
+        since Google Places doesn't expose amenity-level data like WiFi or noise level.]
 
         ── RANKING ORDER ───────────────────────────────────────────────────────────
-        Sort your results in this exact order:
-          1st: venues matching ALL #{criteria_count} criteria
-          2nd: venues matching #{[criteria_count - 1, 0].max} criteria
-          3rd: venues matching #{[criteria_count - 2, 0].max} criteria
-          (and so on, down to 1 criterion matched)
-        Within each tier, prefer higher-rated venues.
-        Include venues even if they only match 1 criterion — partial matches are valuable.
+        [Omitted: exact tie-break and partial-match ordering rules.]
 
         ── MANDATORY EXCLUSIONS ────────────────────────────────────────────────────
-        Never include venues of these types (unless explicitly requested):
-          library, school, university, hospital, doctor, dentist,
-          government_office, city_hall, courthouse, police, fire_station,
-          post_office, bank, atm, accounting, insurance_agency, car_dealer,
-          car_repair, gas_station, parking, storage, cemetery, funeral_home.
+        [Omitted: the full non-social-venue exclusion list — see INELIGIBLE_TYPES below
+        for the Ruby-side equivalent, which is included in this snapshot.]
 
         ── OUTPUT — MANDATORY ──────────────────────────────────────────────────────
-        YOU MUST output ONLY a raw JSON array. No markdown fences. No explanation text.
-        No apologies. No preamble. The very first character of your response must be [
-        and the very last must be ].
-
-        [
-          {
-            "place_id": "ChIJ...",
-            "name": "Venue Name",
-            "formatted_address": "123 Main St, City, ST 00000",
-            "rating": 4.3,
-            "types": ["cafe", "establishment"],
-            "criteria_matched": #{criteria_count},
-            "reason": "Criterion 1: likely met because it is a health-food cafe. Criterion 2: likely met — independent cafes almost always offer WiFi. Criterion 3: tea-house setting suggests quiet atmosphere."
-          }
-        ]
+        Output ONLY a raw JSON array matching the schema this class parses in
+        extract_final_venues below. No markdown fences, no preamble.
       SYSTEM
     end
 
