@@ -1,3 +1,8 @@
+*** NOTICE ***
+
+    Provided for code review only. All rights reserved — not licensed
+    for reuse, modification, or deployment.
+
 *** Amigos Unite API (Portfolio Snapshot) ***
 
     Production-Grade Rails 7 Backend for Distributed Event Coordination
